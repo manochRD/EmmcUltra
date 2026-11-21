@@ -20,7 +20,7 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
         Title = "eMMC//ULTRA Suite — STM32H723 Bridge";
-        AppWindow.Resize(new SizeInt32(1600, 920));
+        AppWindow.Resize(new SizeInt32(1600, 1030));
 
         VM.Confirm = ConfirmAsync;
         VM.PickFolder = PickFolderAsync;
