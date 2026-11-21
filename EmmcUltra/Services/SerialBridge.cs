@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.IO.Ports;
 using EmmcUltra.Models;
+using EmmcUltra.Services;
 
 namespace EmmcUltra.Services;
 
@@ -37,14 +38,17 @@ public sealed class SerialBridge : IDisposable
         _p.Open();
         _p.DiscardInBuffer();
         _currentPart = null;
+        AppLog.Current.Dbg($"OPEN {port} (ReadTimeout={_p.ReadTimeout} ms)");
     }
 
     public void Close()
     {
-        try { _p?.Close(); } catch { }
-        _p?.Dispose();
-        _p = null;
+        var sp = _p; _p = null;
+        if (sp == null) return;
+        try { sp.Close(); } catch { }
+        sp.Dispose();
         _currentPart = null;
+        AppLog.Current.Dbg("CLOSE port");
     }
 
     public void Dispose() => Close();
