@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "EmmcUltra (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "EmmcUltra (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

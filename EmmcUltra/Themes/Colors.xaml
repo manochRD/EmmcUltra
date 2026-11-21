@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="BgBrush"          Color="#1B1F24"/>
+    <SolidColorBrush x:Key="PanelBrush"       Color="#242A30"/>
+    <SolidColorBrush x:Key="PanelBorderBrush" Color="#363D45"/>
+    <SolidColorBrush x:Key="HeaderBrush"      Color="#2C333A"/>
+    <SolidColorBrush x:Key="RailBrush"        Color="#20252B"/>
+    <SolidColorBrush x:Key="AccentBrush"      Color="#3FA9F5"/>
+    <SolidColorBrush x:Key="DimBrush"         Color="#8E99A4"/>
+    <SolidColorBrush x:Key="OkBrush"          Color="#3DDC84"/>
+    <SolidColorBrush x:Key="DangerBrush"      Color="#FF5A6A"/>
+    <SolidColorBrush x:Key="StatusBarBrush"   Color="#1E9E97"/>
+    
+    <Style x:Key="TaskButton" TargetType="Button">
+        <Setter Property="Width" Value="66"/>
+        <Setter Property="Height" Value="62"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="Background" Value="#2E353D"/>
+    </Style>
+
+    <Style x:Key="RailButton" TargetType="Button">
+        <Setter Property="Width" Value="60"/>
+        <Setter Property="Height" Value="60"/>
+        <Setter Property="Background" Value="#2A3037"/>
+    </Style>
+
+    <Style x:Key="DangerButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
+    </Style>
+    
+    <Style x:Key="Panel" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PanelBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="10"/>
+    </Style>
+
+    <Style x:Key="PanelTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource DimBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+
+    <Style x:Key="TaskLabel" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{StaticResource DimBrush}"/>
+    </Style>
+
+    <Style x:Key="ColHeader" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="Cell" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="Key" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource DimBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+</ResourceDictionary>
