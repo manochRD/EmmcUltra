@@ -210,7 +210,7 @@
                 </PivotItem>
 
                 <PivotItem Header="Log" Margin="0">
-                    <ListView ItemsSource="{x:Bind VM.Logs}" FontFamily="Consolas" FontSize="12"/>
+                    <ListView ItemsSource="{x:Bind VM.LogLines}" FontFamily="Consolas" FontSize="12"/>
                 </PivotItem>
             </Pivot>
         </Grid>
