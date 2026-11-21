@@ -6,6 +6,8 @@ using Microsoft.UI.Xaml.Input;
 using Windows.Graphics;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
+using Microsoft.UI.Windowing;
+
 
 namespace EmmcUltra;
 
