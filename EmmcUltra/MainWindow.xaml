@@ -10,7 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="300"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -140,9 +140,13 @@
                     <Grid Padding="12" RowSpacing="10">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <!-- Row 0: สรุปค่าหลัก -->
                             <RowDefinition Height="Auto"/>
+                            <!-- Row 1: ปุ่ม RE-IDENTIFY / COPY REPORT -->
                             <RowDefinition Height="Auto"/>
+                            <!-- Row 2: หัวตาราง -->
                             <RowDefinition Height="*"/>
+                            <!-- Row 3: รายการ InfoRows -->
                         </Grid.RowDefinitions>
 
                         <!-- สรุปค่าหลัก -->
@@ -505,7 +509,7 @@
         </Grid>
 
         <!-- ===================== PROGRESS ===================== -->
-        <Grid Grid.Row="1" Grid.ColumnSpan="3" Padding="8,4" ColumnSpacing="8">
+        <Grid Grid.Row="3" Grid.ColumnSpan="3" Padding="8,4" ColumnSpacing="8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -522,7 +526,7 @@
         </Grid>
 
         <!-- ===================== STATUS BAR ===================== -->
-        <Grid Grid.Row="2" Grid.ColumnSpan="3" Background="{StaticResource StatusBarBrush}" Padding="10,3" ColumnSpacing="30">
+        <Grid Grid.Row="4" Grid.ColumnSpan="3" Background="{StaticResource StatusBarBrush}" Padding="10,3" ColumnSpacing="30">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -538,7 +542,7 @@
         </Grid>
     
     
-        <Border Grid.Row="2" Background="#05050A" BorderBrush="#3A3A12" BorderThickness="0,1,0,0" Padding="10,6,10,8">
+        <Border Grid.Row="3" Background="#05050A" BorderBrush="#3A3A12" BorderThickness="0,1,0,0" Padding="10,6,10,8">
             <Grid RowSpacing="6">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
