@@ -1,12 +1,13 @@
 using EmmcUltra.Models;
+using EmmcUltra.Services;
 using EmmcUltra.ViewModels;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Windows.Graphics;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
-using Microsoft.UI.Windowing;
 
 
 namespace EmmcUltra;
@@ -26,6 +27,9 @@ public sealed partial class MainWindow : Window
         VM.PickOpenFile = PickOpenAsync;
         VM.PickSaveFile = PickSaveAsync;
         VM.RequestShowHex += () => LeftPivot.SelectedIndex = 1;
+
+        AppLog.Current.Flushed += OnLogFlushed;
+        Closed += (_, _) => AppLog.Current.CloseFile();
 
         var t = DispatcherQueue.CreateTimer();
         t.Interval = TimeSpan.FromSeconds(1);
@@ -91,5 +95,25 @@ public sealed partial class MainWindow : Window
         p.FileTypeChoices.Add("Binary image", new List<string> { ".bin" });
         p.SuggestedFileName = suggestedName;
         return (await p.PickSaveFileAsync())?.Path;
+    }
+
+    private void OnLogFlushed()
+    {
+        // เช็คว่าผู้ใช้เปิด Auto-scroll อยู่ไหม และในลิสต์มีข้อมูลหรือยัง
+        if (!VM.LogAutoScroll || LogList.Items.Count == 0) return;
+
+        // ใช้ DispatcherQueue เพื่อให้แน่ใจว่าสั่งเลื่อนหลังจาก UI วาดข้อมูลเสร็จแล้ว
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            try
+            {
+                var lastItem = LogList.Items[LogList.Items.Count - 1];
+                LogList.ScrollIntoView(lastItem);
+            }
+            catch
+            {
+                // ป้องกันกรณีที่ collection เปลี่ยนแปลงกระทันหันระหว่างกำลังเลื่อน
+            }
+        });
     }
 }

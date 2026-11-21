@@ -10,7 +10,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="300"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="250"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -213,7 +214,7 @@
                         </StackPanel>
 
                         <!-- หัวตาราง -->
-                        <Grid Grid.Row="2" Background="#14141E" Padding="12,4">
+                        <Grid Grid.Row="1" Background="#14141E" Padding="12,4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="290"/>
