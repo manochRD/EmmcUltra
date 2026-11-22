@@ -322,10 +322,7 @@
                         <Grid ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="170"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="170"/>   
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
@@ -384,13 +381,13 @@
                 <RowDefinition Height="200"/>
             </Grid.RowDefinitions>
 
-            <Border Style="{StaticResource Panel}">
+            <Border Style="{StaticResource Panel}" Grid.Row="0">
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="350"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
                     <FontIcon Glyph="&#xE950;" FontSize="36" Foreground="{StaticResource AccentBrush}"/>
                     <StackPanel Grid.Column="1">
@@ -401,7 +398,23 @@
                      FontSize="22" FontWeight="Bold" FontStyle="Italic" Foreground="{StaticResource AccentBrush}"/>
                 </Grid>
             </Border>
-
+            
+            <!-- Device Information -->
+            <Border Style="{StaticResource Panel}" Grid.Row="1">
+                <StackPanel>
+                    <TextBlock Text="Device Information" Style="{StaticResource PanelTitle}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox Width="200" PlaceholderText="เลือก COM Port" ItemsSource="{x:Bind VM.Ports}" SelectedIndex="{x:Bind VM.PortIndex, Mode=TwoWay}"/>
+                        <Button Command="{x:Bind VM.RefreshPortsCommand}" ToolTipService.ToolTip="Refresh ports">
+                            <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                        </Button>
+                        <Button MinWidth="130" Content="{x:Bind VM.ConnectButtonText, Mode=OneWay}" Command="{x:Bind VM.ConnectCommand}"/>
+                        <FontIcon Glyph="&#xE88E;" FontSize="24" Foreground="{StaticResource OkBrush}"/>
+                        <TextBlock VerticalAlignment="Center" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"  Text="{x:Bind VM.ConnText, Mode=OneWay}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
             <Pivot x:Name="RightPivot" Grid.Row="2">
                 <PivotItem Header="eMMC" Margin="0">
                     <ScrollViewer>
@@ -411,28 +424,27 @@
                                     <TextBlock Text="Connection Parameters" Style="{StaticResource PanelTitle}"/>
                                     <Grid ColumnSpacing="8" RowSpacing="8">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="*"/>              
+                                            <ColumnDefinition Width="240"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <TextBlock Text="CLKDIV:" Style="{StaticResource Key}"/>
-                                        <NumberBox Grid.Column="1" Minimum="0" Maximum="1023" SpinButtonPlacementMode="Compact"
-                               Value="{x:Bind VM.ClkDiv, Mode=TwoWay}"/>
+                                        <NumberBox Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="1023" SpinButtonPlacementMode="Compact" Value="{x:Bind VM.ClkDiv, Mode=TwoWay}"/>
                                         <TextBlock Grid.Row="1" Text="Bus Width:" Style="{StaticResource Key}"/>
-                                        <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch"
-                              SelectedIndex="{x:Bind VM.BusIndex, Mode=TwoWay}">
+                                        <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" SelectedIndex="{x:Bind VM.BusIndex, Mode=TwoWay}">
                                             <x:String>1-BIT</x:String>
                                             <x:String>4-BIT</x:String>
                                             <x:String>8-BIT</x:String>
                                         </ComboBox>
+                                        <Button Grid.Row="0" Grid.Column="2" Content="APPLY CLK" Command="{x:Bind VM.ApplyClockCommand}"/>
+                                        <Button Grid.Row="1" Grid.Column="2" Content="IDENTIFY" Command="{x:Bind VM.IdentifyCommand}"/>
+
                                     </Grid>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="APPLY CLK" Command="{x:Bind VM.ApplyClockCommand}"/>
-                                        <Button Content="IDENTIFY" Command="{x:Bind VM.IdentifyCommand}"/>
-                                    </StackPanel>
+
                                 </StackPanel>
                             </Border>
 
@@ -468,26 +480,7 @@
                                     <Button Content="WRITE FILE @ LBA" Style="{StaticResource DangerButton}" Command="{x:Bind VM.WriteAtLbaCommand}"/>
                                 </StackPanel>
                             </Border>
-                            <!-- Device Information -->
-                            <Border Style="{StaticResource Panel}">
-                                <StackPanel>
-                                    <TextBlock Text="Device Information" Style="{StaticResource PanelTitle}"/>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <ComboBox Width="200" PlaceholderText="เลือก COM Port"
-                      ItemsSource="{x:Bind VM.Ports}"
-                      SelectedIndex="{x:Bind VM.PortIndex, Mode=TwoWay}"/>
-                                        <Button Command="{x:Bind VM.RefreshPortsCommand}" ToolTipService.ToolTip="Refresh ports">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="14"/>
-                                        </Button>
-                                        <Button MinWidth="130" Content="{x:Bind VM.ConnectButtonText, Mode=OneWay}"
-                    Command="{x:Bind VM.ConnectCommand}"/>
-                                        <FontIcon Glyph="&#xE88E;" FontSize="24" Foreground="{StaticResource OkBrush}"/>
-                                        <TextBlock VerticalAlignment="Center" FontWeight="Bold"
-                       Foreground="{StaticResource AccentBrush}"
-                       Text="{x:Bind VM.ConnText, Mode=OneWay}"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
+
                         </StackPanel>
                         
                         
