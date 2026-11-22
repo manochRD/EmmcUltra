@@ -23,6 +23,8 @@ public partial class MainViewModel : ObservableObject
     private volatile bool _userCancel;
     private byte[] _lastCid = [], _lastExt = [];
 
+    private byte[]? _extCsd;
+
     public ObservableCollection<string> Ports { get; } = new();
     public ObservableCollection<PartitionEntry> Partitions { get; } = new();
     public ObservableCollection<InfoRow> InfoRows { get; } = new();
@@ -347,7 +349,7 @@ public partial class MainViewModel : ObservableObject
     {
         _log.Info("READ GPT: เลือก USER area → อ่าน LBA 1..33 (GPT header + partition entries)");
         byte[] d = [];
-        if (!await RunAsync("Read GPT", _ => { _br.SelectPart(HwPart.User); d = _br.Read(1, 33); })) return;
+        if (!await RunAsync("Read GPT", _ => { _br.SelectPart(HwPart.User); d = _br.Read(1, 34); })) return;
 
         string sig = new string(d.Take(8).Select(b => (b >= 0x20 && b < 0x7F) ? (char)b : '.').ToArray());
         _log.Info($"ได้รับ {d.Length} ไบต์, signature = \"{sig}\" (ต้องเป็น \"EFI PART\")");

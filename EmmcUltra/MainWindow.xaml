@@ -341,8 +341,7 @@
                                 <Button Content="WRITE FILE @ LBA" Command="{x:Bind VM.WriteAtLbaCommand}"/>
                             </StackPanel>
 
-                            <Button Grid.Column="5" Content="READ EXT_CSD" VerticalAlignment="Bottom"
-                    Command="{x:Bind VM.ReadExtCsdCommand}"/>
+                            <Button Grid.Column="5" Content="READ EXT_CSD" VerticalAlignment="Bottom"      Command="{x:Bind VM.ReadExtCsdCommand}"/>
                         </Grid>
 
                         <!-- Hex (ซ้าย) + ASCII (ขวา) ในบรรทัดเดียวกัน -->
@@ -352,7 +351,145 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                     </Grid>
                 </PivotItem>
-                
+                <!-- RAWPROGRAM -->
+                <PivotItem Header="RAWPROGRAM" Margin="0">
+                    <Grid Padding="12" RowSpacing="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="LOAD rawprogram.xml" Command="{x:Bind VM.LoadRawProgramCommand}"/>
+                            <Button Content="SELECT ALL" Command="{x:Bind VM.RawToggleAllCommand}"/>
+                            <CheckBox Content="Readback verify" MinWidth="0" IsChecked="{x:Bind VM.RawVerify, Mode=TwoWay}"/>
+                            <Button Content="FLASH SELECTED" Background="#FF4D6D" Foreground="White"
+                    Command="{x:Bind VM.FlashRawProgramCommand}"/>
+                            <TextBlock Text="{x:Bind VM.RawSummary, Mode=OneWay}" VerticalAlignment="Center" Foreground="#FCEE0A"/>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1" Background="#14141E" Padding="12,4" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="220"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="1" Text="PART"   Foreground="#7A7A8C" FontSize="12"/>
+                            <TextBlock Grid.Column="2" Text="LABEL"  Foreground="#7A7A8C" FontSize="12"/>
+                            <TextBlock Grid.Column="3" Text="START"  Foreground="#7A7A8C" FontSize="12"/>
+                            <TextBlock Grid.Column="4" Text="SIZE"   Foreground="#7A7A8C" FontSize="12"/>
+                            <TextBlock Grid.Column="5" Text="FILE"   Foreground="#7A7A8C" FontSize="12"/>
+                            <TextBlock Grid.Column="6" Text="STATUS" Foreground="#7A7A8C" FontSize="12"/>
+                        </Grid>
+
+                        <ListView Grid.Row="2" ItemsSource="{x:Bind VM.RawEntries}" SelectionMode="None" Background="#0A0A12">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="MinHeight" Value="26"/>
+                                    <Setter Property="Padding" Value="12,0"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="m:RawProgramEntry">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="32"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="220"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" MinWidth="0" IsChecked="{x:Bind IsSelected, Mode=TwoWay}" IsEnabled="{x:Bind FileFound}"/>
+                                        <TextBlock Grid.Column="1" Text="{x:Bind PartLabel}" Foreground="#FCEE0A" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{x:Bind Label}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{x:Bind StartHex}" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{x:Bind SizeText}" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{x:Bind FileText}" Foreground="#C8D2E6" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="6" Text="{x:Bind Status, Mode=OneWay}" Foreground="#00F0FF" FontSize="12" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <Grid Grid.Row="3" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ProgressBar Value="{x:Bind VM.ProgressValue, Mode=OneWay}" Maximum="100" Height="6" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{x:Bind VM.ProgressText, Mode=OneWay}" FontFamily="Consolas" FontSize="12"/>
+                        </Grid>
+                    </Grid>
+                </PivotItem>
+                <!-- GPT TOOL -->
+                <PivotItem Header="GPT TOOL" Margin="0">
+                    <ScrollViewer>
+                        <StackPanel Padding="12" Spacing="12">
+
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Button Content="DIAGNOSE GPT" Background="#00F0FF" Foreground="Black"
+                        Command="{x:Bind VM.GptDiagnoseCommand}"/>
+                                <CheckBox Content="เขียนทั้ง Primary + Backup" MinWidth="0"
+                          IsChecked="{x:Bind VM.GptWriteBoth, Mode=TwoWay}"/>
+                                <CheckBox Content="ขยาย partition สุดท้ายให้เต็ม eMMC" MinWidth="0"
+                          IsChecked="{x:Bind VM.GptExpandLast, Mode=TwoWay}"/>
+                            </StackPanel>
+
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Background="#0A0A12" BorderBrush="#1E1E2A" BorderThickness="1" Padding="12" CornerRadius="4">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="PRIMARY GPT  (LBA 0 – 33)" Foreground="#FCEE0A" FontWeight="Bold"/>
+                                        <TextBlock Text="{x:Bind VM.GptPrimaryStatus, Mode=OneWay}" FontFamily="Consolas"
+                                   FontSize="12" Foreground="#C8D2E6" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" Background="#0A0A12" BorderBrush="#1E1E2A" BorderThickness="1" Padding="12" CornerRadius="4">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="BACKUP GPT  (LBA N-33 – N-1)" Foreground="#FCEE0A" FontWeight="Bold"/>
+                                        <TextBlock Text="{x:Bind VM.GptBackupStatus, Mode=OneWay}" FontFamily="Consolas"
+                                   FontSize="12" Foreground="#C8D2E6" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="DUMP" Width="80" VerticalAlignment="Center" Foreground="#7A7A8C"/>
+                                <Button Content="READ → gpt_main0.bin"   Command="{x:Bind VM.GptDumpMainCommand}"/>
+                                <Button Content="READ → gpt_backup0.bin" Command="{x:Bind VM.GptDumpBackupCommand}"/> 
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="WRITE" Width="80" VerticalAlignment="Center" Foreground="#7A7A8C"/>
+                                <Button Content="gpt_main0.bin → eMMC"   Background="#FF4D6D" Foreground="White"
+                        Command="{x:Bind VM.GptWriteMainFileCommand}"/>
+                                <Button Content="gpt_backup0.bin → eMMC" Background="#FF4D6D" Foreground="White"
+                        Command="{x:Bind VM.GptWriteBackupFileCommand}"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="REPAIR" Width="80" VerticalAlignment="Center" Foreground="#7A7A8C"/>
+                                <Button Content="REBUILD จาก PRIMARY" Command="{x:Bind VM.GptRebuildFromPrimaryCommand}"/>
+                                <Button Content="REBUILD จาก BACKUP"  Command="{x:Bind VM.GptRebuildFromBackupCommand}"/>
+                            </StackPanel>
+
+                            <TextBlock TextWrapping="Wrap" Foreground="#7A7A8C" FontSize="12"
+                       Text="ก่อนเขียนทุกครั้ง โปรแกรมจะสำรองของเดิมไว้ที่ Documents\EmmcUltra\GptSafety\  •  ทุกการเขียนจะปรับ MyLBA / AlternateLBA / LastUsable ให้ตรงกับขนาด eMMC ตัวนี้ และคำนวณ CRC ใหม่"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+
             </Pivot>
         </Grid>
 
@@ -481,8 +618,28 @@
                                 </StackPanel>
                             </Border>
 
+
+       
+
+                                <StackPanel>
+                                    <Button Content="LOAD rawprogram.xml" Command="{x:Bind VM.LoadRawProgramCommand}"/>
+                                    <Button Content="SELECT ALL" Command="{x:Bind VM.RawToggleAllCommand}"/>
+                                    <CheckBox Content="Readback verify" MinWidth="0" IsChecked="{x:Bind VM.RawVerify, Mode=TwoWay}"/>
+                                    <Button Content="FLASH SELECTED" Background="#FF4D6D" Foreground="White"
+                Command="{x:Bind VM.FlashRawProgramCommand}"/>
+                                    <TextBlock Text="{x:Bind VM.RawSummary, Mode=OneWay}" VerticalAlignment="Center" Foreground="#FCEE0A"/>
+                                </StackPanel>
+
+                                <StackPanel>
+                                    <Button Content="LOAD patch0.xml" Command="{x:Bind VM.LoadPatchCommand}"/>
+                                    <Button Content="APPLY PATCH" Command="{x:Bind VM.ApplyPatchCommand}"/>
+                                    <Button Content="VERIFY GPT" Command="{x:Bind VM.VerifyGptCommand}"/>
+                                    <CheckBox Content="Auto patch หลัง flash" MinWidth="0"
+                  IsChecked="{x:Bind VM.RawAutoPatch, Mode=TwoWay}"/>
+                                    <TextBlock Text="{x:Bind VM.PatchSummary, Mode=OneWay}" VerticalAlignment="Center" Foreground="#B07CFF"/>
+                                </StackPanel>
+
                         </StackPanel>
-                        
                         
                         
                     </ScrollViewer>

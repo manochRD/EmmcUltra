@@ -7,6 +7,7 @@ namespace EmmcUltra.Services;
 /// สมมติว่า cid[0] = บิต [127:120] (MID) และ ext[i] = EXT_CSD byte i
 public static class EmmcDecoder
 {
+    public static byte[]? LastExtCsd { get; private set; } // 👈 เพิ่มตัวแปรนี้ไว้เก็บค่าล่าสุด
     public static List<InfoRow> Decode(byte[] cid, byte[] ext)
     {
         var r = new List<InfoRow>();
@@ -15,7 +16,9 @@ public static class EmmcDecoder
         if (cid.Length >= 16) DecodeCid(r, cid, rev);
         else r.Add(new InfoRow("CID", "CID", "-", "-", $"ข้อมูลไม่ครบ ({cid.Length}/16 ไบต์)"));
 
-        if (ext.Length >= 512) DecodeExtCsd(r, ext);
+        if (ext.Length >= 512){
+            EmmcDecoder.LastExtCsd = ext; DecodeExtCsd(r, ext);
+        }
         else r.Add(new InfoRow("EXT_CSD", "EXT_CSD", "-", "-", $"ข้อมูลไม่ครบ ({ext.Length}/512 ไบต์)"));
         return r;
     }
