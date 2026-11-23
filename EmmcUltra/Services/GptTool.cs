@@ -111,20 +111,52 @@ public static class GptTool
         g.Problems.AddRange(CheckEntries(Entries(g), g.FirstUsable, g.LastUsable));
     }
 
+    //private static IEnumerable<string> CheckEntries(List<GptEntry> es, ulong firstUse, ulong lastUse)
+    //{
+    //    GptEntry? prev = null;
+    //    foreach (var e in es.OrderBy(e => e.First))
+    //    {
+    //        if (e.First > e.Last)
+    //            yield return $"#{e.Index} '{e.Name}' First > Last";
+    //        else if (e.First < firstUse || e.Last > lastUse)
+    //            yield return $"#{e.Index} '{e.Name}' 0x{e.First:X}-0x{e.Last:X} อยู่นอกช่วงที่ใช้ได้";
+    //        if (prev != null && e.First <= prev.Last)
+    //            yield return $"#{e.Index} '{e.Name}' ทับกับ #{prev.Index} '{prev.Name}'";
+    //        prev = e;
+    //    }
+    //}
+
     private static IEnumerable<string> CheckEntries(List<GptEntry> es, ulong firstUse, ulong lastUse)
     {
         GptEntry? prev = null;
+        var maxEntry = es.Count > 0 ? es.MaxBy(e => e.First) : null;
+
         foreach (var e in es.OrderBy(e => e.First))
         {
-            if (e.First > e.Last)
+            bool isLastEntry = (maxEntry != null && e.Index == maxEntry.Index);
+
+            if (e.First > e.Last && !isLastEntry)
+            {
                 yield return $"#{e.Index} '{e.Name}' First > Last";
-            else if (e.First < firstUse || e.Last > lastUse)
+            }
+            else if (!isLastEntry && (e.First < firstUse || e.Last > lastUse))
+            {
                 yield return $"#{e.Index} '{e.Name}' 0x{e.First:X}-0x{e.Last:X} อยู่นอกช่วงที่ใช้ได้";
+            }
+            else if (isLastEntry && e.First > lastUse)
+            {
+                yield return $"#{e.Index} '{e.Name}' เริ่มต้นอยู่นอกช่วงดิสก์";
+            }
+
             if (prev != null && e.First <= prev.Last)
+            {
                 yield return $"#{e.Index} '{e.Name}' ทับกับ #{prev.Index} '{prev.Name}'";
+            }
+
             prev = e;
         }
     }
+
 
     public static async Task<GptHeaderInfo> ReadFromDiskAsync(
         Func<ulong, uint, CancellationToken, Task<byte[]>> read, bool isPrimary, ulong disk, CancellationToken ct)
@@ -185,27 +217,49 @@ public static class GptTool
         var es = Entries(src);
         if (es.Count == 0) throw new InvalidDataException("ตาราง partition ว่าง");
         var bad = CheckEntries(es, src.FirstUsable, ulong.MaxValue).ToList();
-        if (bad.Count > 0) throw new InvalidDataException("ตาราง partition ผิด: " + string.Join("; ", bad));
+        if (bad.Count > 0) throw new InvalidDataException("ตาราง partition ผิด: " + string.Join(", ", bad));
 
         var arr = new byte[arrSec * SS];
         src.Array!.CopyTo(arr, 0);
 
-        var lastE = es.MaxBy(e => e.Last)!;
-        if (lastE.Last > newLast)
-            throw new InvalidOperationException(
-                $"'{lastE.Name}' จบที่ 0x{lastE.Last:X} แต่ eMMC นี้ใช้ได้ถึง 0x{newLast:X} — eMMC เล็กกว่าต้นทาง");
+        // 1. ค้นหาพาร์ทิชัน 'userdata' โดยเฉพาะ เพื่อนำมาขยาย (ถ้าไม่พบ ค่อย fallback ไปตัวท้ายสุด)
+        var targetE = es.FirstOrDefault(e => e.Name.Equals("userdata", StringComparison.OrdinalIgnoreCase))
+                      ?? es.MaxBy(e => e.Last)!;
 
-        if (expandLast && lastE.Last < newLast)
+        if (targetE.Last > newLast)
         {
-            W64(arr, (lastE.Index - 1) * (int)src.EntrySize + 40, newLast);
-            changes.Add($"ขยาย '{lastE.Name}' LastLBA 0x{lastE.Last:X} → 0x{newLast:X}");
+            throw new InvalidOperationException(
+                $"'{targetE.Name}' จบที่ 0x{targetE.Last:X} แต่ eMMC นี้ใช้ได้ถึง 0x{newLast:X} – eMMC เล็กกว่าต้นทาง");
+        }
+
+        // 2. ถ้าเปิดใช้งาน expandLast ให้ทำการขยายพาร์ทิชันเป้าหมายให้ชนขอบ eMMC ใหม่
+        if (expandLast && targetE.Last < newLast)
+        {
+            // คำนวณหาจุดเริ่มต้น (Start LBA) ของพาร์ทิชันนี้ให้อยู่ต่อจากพาร์ทิชันก่อนหน้า
+            var prevE = es.Where(e => e.Index != targetE.Index).MaxBy(e => e.Last);
+            ulong newStart = prevE != null ? prevE.Last + 1 : targetE.First;
+            if (newStart >= newLast) newStart = targetE.First;
+
+            int entryOffset = (targetE.Index - 1) * (int)src.EntrySize;
+
+            // บันทึก Start LBA และ Last LBA ใหม่ลงในตาราง Entry
+            W64(arr, entryOffset + 32, newStart);
+            W64(arr, entryOffset + 40, newLast);
+
+            string msg = $"DEBUG: ขยาย '{targetE.Name}' สำเร็จ Start:0x{newStart:X} -> End:0x{newLast:X}";
+            changes.Add(msg);
+            System.Diagnostics.Debug.WriteLine(msg);
         }
 
         ulong srcDisk = Math.Max(src.MyLba, src.AltLba) + 1;
         if (srcDisk != disk)
+        {
             changes.Add($"ขนาดต้นทาง ≈ {srcDisk:N0} sectors ≠ eMMC นี้ {disk:N0} sectors → ปรับตำแหน่ง Backup ใหม่");
+        }
         if (src.LastUsable != newLast)
+        {
             changes.Add($"LastUsableLBA 0x{src.LastUsable:X} → 0x{newLast:X}");
+        }
 
         uint crc = Crc32.Compute(arr.AsSpan(0, src.ArrayBytes));
         ulong bakArr = disk - 1 - (ulong)arrSec;
