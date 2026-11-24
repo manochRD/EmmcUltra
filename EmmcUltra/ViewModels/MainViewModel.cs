@@ -1,12 +1,13 @@
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO.Ports;
-using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EmmcUltra.Models;
 using EmmcUltra.Services;
 using Microsoft.UI.Dispatching;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO.Ports;
+using System.Text;
+using System.Windows.Input;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace EmmcUltra.ViewModels;
@@ -38,6 +39,8 @@ public partial class MainViewModel : ObservableObject
     public Func<string, Task<string?>> PickSaveFile { get; set; } = _ => Task.FromResult<string?>(null);
     public Func<string, Task<string?>> PickLogFile { get; set; } = _ => Task.FromResult<string?>(null);
     public event Action? RequestShowHex;
+
+    public ICommand WriteFirmwareCommand => new AsyncRelayCommand(ExecuteWriteFirmwareAsync);
 
     public MainViewModel()
     {

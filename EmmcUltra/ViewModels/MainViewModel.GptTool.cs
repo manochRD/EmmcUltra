@@ -1,12 +1,14 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using EmmcUltra.Models;
+using EmmcUltra.Services;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using EmmcUltra.Models;
-using EmmcUltra.Services;
+using System.Windows.Input;
+using Microsoft.UI.Dispatching;
 
 namespace EmmcUltra.ViewModels;   // ⚠️ ใช้ namespace เดียวกับ MainViewModel
 
@@ -367,4 +369,81 @@ public partial class MainViewModel
 
         RawLog("GPT Force Write: บังคับเขียนตาราง GPT ทั้ง Main และ Backup สำเร็จเรียบร้อย!");
     });
+
+    // ตัวแปรเก็บสถานะ (รองรับ ObservableProperty ถ้าใช้ CommunityToolkit)
+
+    private int _firmwareProgress;
+
+    public int FirmwareProgress
+
+    {
+
+        get => _firmwareProgress;
+
+        set { _firmwareProgress = value; OnPropertyChanged(); } // หรือยึดตาม BaseClass ของคุณ
+
+    }
+
+
+    private string _firmwareStatusText = "พร้อมใช้งาน";
+
+    public string FirmwareStatusText
+
+    {
+
+        get => _firmwareStatusText;
+
+        set { _firmwareStatusText = value; OnPropertyChanged(); }
+
+    }
+
+
+
+    // คำสั่งสำหรับผูกกับปุ่มบน XAML
+    private async Task ExecuteWriteFirmwareAsync()
+    {
+        // กำหนดเซกเตอร์เริ่มต้นตรงนี้ (เช่น 0x2000 หรือตำแหน่งจริงของพาร์ทิชันของคุณ)
+        ulong targetStartSector = 0x2000;
+
+        var picker = new Windows.Storage.Pickers.FileOpenPicker();
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainRootWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        picker.FileTypeFilter.Add(".bin");
+        picker.FileTypeFilter.Add(".ffu");
+        picker.FileTypeFilter.Add(".img");
+
+        var file = await picker.PickSingleFileAsync();
+        if (file != null)
+        {
+            _cts = new CancellationTokenSource();
+            try
+            {
+                FirmwareProgress = 0;
+                var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+                await EmmcFlashTool.WriteFirmwareAsync(
+                    file.Path,
+                    targetStartSector, // <--- ใช้ตัวแปรนี้ส่งเข้าไปแทนเลข 0 แล้วครับ
+                    dispatcherQueue,
+                    (percent, statusText) =>
+                    {
+                        FirmwareProgress = percent;
+                        FirmwareStatusText = statusText;
+                    },
+                    _cts.Token);
+            }
+            catch (Exception ex)
+            {
+                FirmwareStatusText = $"ผิดพลาด: {ex.Message}";
+            }
+            finally
+            {
+                _cts?.Dispose();
+                _cts = null;
+            }
+        }
+    }
+
+
 }

@@ -191,7 +191,10 @@
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
                             <Button Content="RE-IDENTIFY" Command="{x:Bind VM.IdentifyCommand}"/>
                             <Button Content="COPY REPORT" Command="{x:Bind VM.CopyInfoCommand}"/>
+                            <Button Content="WRITE FIRMWARE / FFU" Command="{x:Bind VM.WriteFirmwareCommand}"/>
                             <TextBlock Text="Decoded per JEDEC JESD84-B51 (eMMC 5.1)" VerticalAlignment="Center" Foreground="#7A7A8C"/>
+                            <ProgressBar Value="{x:Bind VM.FirmwareProgress, Mode=OneWay}" Maximum="100" Width="300" HorizontalAlignment="Left"/>
+                            <TextBlock Text="{x:Bind VM.FirmwareStatusText, Mode=OneWay}"/>
                         </StackPanel>
 
                         <!-- หัวตาราง -->
@@ -437,10 +440,8 @@
                             <StackPanel Orientation="Horizontal" Spacing="12">
                                 <Button Content="DIAGNOSE GPT" Background="#00F0FF" Foreground="Black"
                         Command="{x:Bind VM.GptDiagnoseCommand}"/>
-                                <CheckBox Content="เขียนทั้ง Primary + Backup" MinWidth="0"
-                          IsChecked="{x:Bind VM.GptWriteBoth, Mode=TwoWay}"/>
-                                <CheckBox Content="ขยาย partition สุดท้ายให้เต็ม eMMC" MinWidth="0"
-                          IsChecked="{x:Bind VM.GptExpandLast, Mode=TwoWay}"/>
+                                <CheckBox Content="เขียนทั้ง Primary + Backup" MinWidth="0" IsChecked="{x:Bind VM.GptWriteBoth, Mode=TwoWay}"/>
+                                <CheckBox Content="ขยาย partition สุดท้ายให้เต็ม eMMC" MinWidth="0" IsChecked="{x:Bind VM.GptExpandLast, Mode=TwoWay}"/>
                             </StackPanel>
 
                             <Grid ColumnSpacing="12">
@@ -483,11 +484,15 @@
                                 <Button Content="REBUILD จาก PRIMARY" Command="{x:Bind VM.GptRebuildFromPrimaryCommand}"/>
                                 <Button Content="REBUILD จาก BACKUP"  Command="{x:Bind VM.GptRebuildFromBackupCommand}"/>
                             </StackPanel>
+                            <!-- ปุ่ม Force Write GPT -->
+                            <Button Content="FORCE GPT" Command="{x:Bind VM.GptForceWriteCommand}"  ToolTipService.ToolTip="บังคับเขียนตาราง GPT ทั้ง Main และ Backup ลงฮาร์ดแวร์โดยตรง" />
 
                             <TextBlock TextWrapping="Wrap" Foreground="#7A7A8C" FontSize="12"
                        Text="ก่อนเขียนทุกครั้ง โปรแกรมจะสำรองของเดิมไว้ที่ Documents\EmmcUltra\GptSafety\  •  ทุกการเขียนจะปรับ MyLBA / AlternateLBA / LastUsable ให้ตรงกับขนาด eMMC ตัวนี้ และคำนวณ CRC ใหม่"/>
-                        </StackPanel>
+                        </StackPanel>                       
+                        
                     </ScrollViewer>
+                    
                 </PivotItem>
 
             </Pivot>
